@@ -8,7 +8,7 @@ def scrape_entertainment() -> dict[str, list[dict[str, str | None]]]:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
         page.goto("https://ekantipur.com/entertainment")
-        page.wait_for_selector("div.category-inner-wrapper")
+        page.wait_for_load_state("networkidle")
 
         # grab category once from page header
         category_el = page.query_selector("div.category-name p a")
@@ -36,6 +36,3 @@ def scrape_entertainment() -> dict[str, list[dict[str, str | None]]]:
             json.dump(result, f, ensure_ascii=False, indent=2)
         browser.close()
         return result
-
-if __name__ == "__main__":
-    scrape_entertainment()
