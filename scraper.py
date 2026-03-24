@@ -9,19 +9,22 @@ def scrape_entertainment() -> dict[str, list[dict[str, str | None]]]:
         page = browser.new_page()
         page.goto("https://ekantipur.com/entertainment")
         page.wait_for_selector("div.category-inner-wrapper")
+        # scroll to bottom so lazy-loaded images get their src
         page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
         page.wait_for_timeout(2000)
 
-        # grab category once from page header
+        # category is the same for all cards, grab it once from header
         category_el = page.query_selector("div.category-name p a")
         category = category_el.text_content().strip() if category_el else None
 
         cards = page.query_selector_all("div.category-inner-wrapper")
         articles: list[dict[str, str | None]] = []
 
+        # only need top 5
         for card in cards[:5]:
             title_el = card.query_selector("div.category-description h2 a")
             img_el = card.query_selector("div.category-image figure img")
+            # not every article has an author, so we handle None
             author_el = card.query_selector("div.author-name p a")
 
             articles.append(
@@ -34,6 +37,7 @@ def scrape_entertainment() -> dict[str, list[dict[str, str | None]]]:
             )
 
         result = {"entertainment_news": articles}
+        # write partial result here, cartoon gets merged in __main__
         with open("output.json", "w", encoding="utf-8") as f:
             json.dump(result, f, ensure_ascii=False, indent=2)
         browser.close()
@@ -52,6 +56,7 @@ def scrapr_cartoon() -> dict[str, str | None]:
         desc_el = card.query_selector("div.cartoon-description p") if card else None
 
         text = desc_el.text_content().strip() if desc_el and desc_el.text_content() else ""
+        # title and author come in one <p> tag separated by " – "
         parts = [part.strip() for part in text.split(" - ", 1)] if text else []
         title = parts[0] if len(parts) > 0 else None
         author = parts[1] if len(parts) > 1 else None
@@ -68,7 +73,7 @@ def scrapr_cartoon() -> dict[str, str | None]:
 if __name__ == "__main__":
     entertainment = scrape_entertainment()
     cartoon = scrapr_cartoon()
-
+    # merge both results and write final output
     entertainment["cartoon_of_the_day"] = cartoon
     with open("output.json", "w", encoding="utf-8") as f:
         json.dump(entertainment, f, ensure_ascii=False, indent=2)

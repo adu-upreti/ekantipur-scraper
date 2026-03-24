@@ -1,7 +1,7 @@
 [project]
 name = "ekantipur-scraper"
 version = "0.1.0"
-description = "Add your description here"
+description = "Audio Bee Intern Task"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
