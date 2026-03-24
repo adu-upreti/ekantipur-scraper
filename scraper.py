@@ -9,6 +9,8 @@ def scrape_entertainment() -> dict[str, list[dict[str, str | None]]]:
         page = browser.new_page()
         page.goto("https://ekantipur.com/entertainment")
         page.wait_for_selector("div.category-inner-wrapper")
+        page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+        page.wait_for_timeout(2000)
 
         # grab category once from page header
         category_el = page.query_selector("div.category-name p a")
