@@ -37,5 +37,36 @@ def scrape_entertainment() -> dict[str, list[dict[str, str | None]]]:
         browser.close()
         return result
 
+
+def scrapr_cartoon() -> dict[str, str | None]:
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page()
+        page.goto("https://ekantipur.com/cartoon")
+        page.wait_for_selector("div.cartoon-wrapper")
+
+        card = page.query_selector("div.cartoon-wrapper")
+        img_el = card.query_selector("div.cartoon-image figure img") if card else None
+        desc_el = card.query_selector("div.cartoon-description p") if card else None
+
+        text = desc_el.text_content().strip() if desc_el and desc_el.text_content() else ""
+        parts = [part.strip() for part in text.split(" - ", 1)] if text else []
+        title = parts[0] if len(parts) > 0 else None
+        author = parts[1] if len(parts) > 1 else None
+
+        result = {
+            "title": title,
+            "image_url": img_el.get_attribute("src") if img_el else None,
+            "author": author,
+        }
+        browser.close()
+        return result
+
+
 if __name__ == "__main__":
-    scrape_entertainment()
+    entertainment = scrape_entertainment()
+    cartoon = scrapr_cartoon()
+
+    entertainment["cartoon_of_the_day"] = cartoon
+    with open("output.json", "w", encoding="utf-8") as f:
+        json.dump(entertainment, f, ensure_ascii=False, indent=2)
