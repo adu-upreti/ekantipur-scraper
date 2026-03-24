@@ -1,0 +1,63 @@
+prompt 1:
+this scraper navigates to  https://ekantipur.com/entertainment and the page has this html format for articles:
+
+<div class="category-inner-wrapper">
+   <div class="category-description">
+       <h2 href="..">article title here</a>
+
+so update scrape_entertainment like this:
+wiat for "div.category-inner-wrapper" to load
+grab only hte first articles title from "div.category-description h2 a
+print title
+
+
+prompt 2:
+update scrape_entertainment() to extract top 5 articels form entertainment page, each artilce card is inside "div.category-inner-wrapper" fromat as follows:
+
+title: "div.category-description h2 a" text
+image url: "div.category-image figure img" src attribute
+author: "div.author-name p a" text (if not exist all card , use null)
+category: "div.category-name p a" text
+
+return a lsit of 5 dicts with those 4 keys and print result
+
+
+prompt 3:
+Update scrape_entertainment() to save results to output.json 
+in this exact structure:
+
+{
+  "entertainment_news": [
+    {
+      "title": "...",
+      "image_url": "...",
+      "category": "...",
+      "author": "..."
+    }
+  ]
+}
+
+Use json.dump with ensure_ascii=False and indent=2 to write the file.
+Remove the print(articles) line.
+
+
+prompt 4:
+add new function scrapr_cartoon in scraper.py from   ekantipur.com/cartoon
+html format:
+<div class"cartoon-wrapper">
+<div class="cartoon-image">
+<figure><img src=".."></figure>
+</div>
+<div class="cartoon-description">
+<p>title - author</p>
+closing tags
+
+image _url: "div.cartoon-image figure img" src
+title and author was in same "div.cartoon-description p" tag, split on " - "
+return dict with keys: title, image_url, author,  
+
+
+prompt 5:
+in scraper_entertainment(). after wait_for_selector, adda scroll 
+to bottom of page to trigger lazy loading of images before scrpaing. use page.evaluate("window,scrollTo(0, document.body.scrollHeight)"
+then wait 2 sec using page.wait_for_timeout(2000)
